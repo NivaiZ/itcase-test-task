@@ -1,3 +1,23 @@
+# Каталог товаров
+
+Стек: Vite, React 19 (`createRoot` + `StrictMode`), React Router 8. Create React App не используется.
+
+```bash
+npm install
+npm run dev
+```
+
+Сборка: `npm run build`.
+
+Цвет и размер на карточке товара пишутся в query-параметры `color` и `size`. Корзина хранится в `localStorage`.
+
+Промокоды в корзине:
+
+- `SALE10` — скидка 10%
+- `MINUS50` — скидка 50
+
+---
+
 # Задача
 
 Реализовать мини‑каталог товаров на React.
