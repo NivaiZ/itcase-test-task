@@ -1,6 +1,6 @@
 # Каталог товаров
 
-Стек: Vite, React 19 (`createRoot` + `StrictMode`), React Router 8. Create React App не используется.
+Стек: Vite, React 19 (`createRoot` + `StrictMode`), React Router 8, TanStack Query для данных каталога, Zustand для корзины. Create React App не используется.
 
 ```bash
 npm install
@@ -9,7 +9,7 @@ npm run dev
 
 Сборка: `npm run build`.
 
-Цвет и размер на карточке товара пишутся в query-параметры `color` и `size`. Корзина хранится в `localStorage`.
+Цвет и размер на карточке товара пишутся в query-параметры `color` и `size`. Корзина живёт в Zustand и сохраняется в `localStorage`.
 
 Промокоды в корзине:
 

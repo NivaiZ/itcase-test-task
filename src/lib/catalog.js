@@ -12,7 +12,7 @@ export const COLOR_SWATCH = {
 export function formatPrice(value) {
   const number = Number(value)
   if (!Number.isFinite(number)) return '—'
-  return number.toFixed(2)
+  return `${number.toFixed(2)} ₽`
 }
 
 export function minPrice(product) {

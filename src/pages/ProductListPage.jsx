@@ -1,18 +1,32 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useCatalog } from '../context/CatalogContext'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useProducts } from '../queries/catalog'
 import { ProductCard } from '../components/ProductCard'
 import { Status } from '../components/Status'
 import { isInStock, minPrice } from '../lib/catalog'
 
 export function ProductListPage() {
-  const { status, products, error, retry } = useCatalog()
+  const productsQuery = useProducts()
+  const products = productsQuery.data ?? []
   const [query, setQuery] = useState('')
   const [inStockOnly, setInStockOnly] = useState(false)
   const [sort, setSort] = useState('')
+  const [dimmed, setDimmed] = useState(false)
+  const skipDim = useRef(true)
 
   useEffect(() => {
     document.title = 'Каталог'
   }, [])
+
+  useEffect(() => {
+    if (skipDim.current) {
+      skipDim.current = false
+      return
+    }
+
+    setDimmed(true)
+    const timer = window.setTimeout(() => setDimmed(false), 420)
+    return () => window.clearTimeout(timer)
+  }, [query, sort])
 
   const visible = useMemo(() => {
     const normalized = query.trim().toLowerCase()
@@ -30,17 +44,17 @@ export function ProductListPage() {
     })
   }, [products, query, inStockOnly, sort])
 
-  if (status === 'loading') {
+  if (productsQuery.isPending) {
     return <Status title="Загрузка каталога" />
   }
 
-  if (status === 'error') {
+  if (productsQuery.isError) {
     return (
       <Status
         title="Не удалось загрузить каталог"
-        action={<button type="button" onClick={retry}>Повторить</button>}
+        action={<button type="button" onClick={() => productsQuery.refetch()}>Повторить</button>}
       >
-        <p>{error?.message ?? 'Попробуйте ещё раз.'}</p>
+        <p>{productsQuery.error?.message ?? 'Попробуйте ещё раз.'}</p>
       </Status>
     )
   }
@@ -58,14 +72,17 @@ export function ProductListPage() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        <label className="check">
-          <input
-            type="checkbox"
-            checked={inStockOnly}
-            onChange={(event) => setInStockOnly(event.target.checked)}
-          />
-          В наличии
-        </label>
+        <div className="field check-field">
+          <span>Наличие</span>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={inStockOnly}
+              onChange={(event) => setInStockOnly(event.target.checked)}
+            />
+            В наличии
+          </label>
+        </div>
         <label className="field">
           <span>Сортировка</span>
           <select value={sort} onChange={(event) => setSort(event.target.value)}>
@@ -81,7 +98,7 @@ export function ProductListPage() {
           <p>Попробуйте другой запрос или снимите фильтр.</p>
         </Status>
       ) : (
-        <ul className="product-grid">
+        <ul className={dimmed ? 'product-grid is-filtering' : 'product-grid'}>
           {visible.map((product) => (
             <li key={product.id}>
               <ProductCard product={product} />

@@ -1,5 +1,3 @@
-const STORAGE_KEY = 'itcase-cart'
-
 export function sameLine(left, right) {
   return String(left.productId) === String(right.productId)
     && String(left.colorId) === String(right.colorId)
@@ -21,30 +19,4 @@ export function sanitizeItems(items) {
 
     return [{ productId, colorId, sizeId, quantity }]
   })
-}
-
-export function loadCart() {
-  const empty = { items: [], promoCode: '' }
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return empty
-
-    const data = JSON.parse(raw)
-    const promo = typeof data.promoCode === 'string' ? data.promoCode.trim().toUpperCase() : ''
-
-    return {
-      items: sanitizeItems(data.items),
-      promoCode: promo,
-    }
-  } catch {
-    return empty
-  }
-}
-
-export function saveCart(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify({
-    items: sanitizeItems(state.items),
-    promoCode: state.promoCode ?? '',
-  }))
 }

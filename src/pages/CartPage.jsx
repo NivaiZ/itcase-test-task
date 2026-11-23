@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { BackLink, Status } from '../components/Status'
-import { useCart, useCartSummary } from '../context/CartContext'
-import { useCatalog } from '../context/CatalogContext'
+import { useCartHydrated, useCartSummary } from '../hooks/useCart'
+import { useProducts, useSizes } from '../queries/catalog'
+import { useCartStore } from '../store/useCartStore'
 import { formatPrice } from '../lib/catalog'
 import { quoteCart } from '../lib/promo'
 
@@ -25,11 +26,24 @@ function resolveLine(item, products, sizes) {
 }
 
 export function CartPage() {
-  const { items, promoCode, setQuantity, removeItem, applyPromo, clearPromo } = useCart()
+  const items = useCartStore((state) => state.items)
+  const promoCode = useCartStore((state) => state.promoCode)
+  const setQuantity = useCartStore((state) => state.setQuantity)
+  const removeItem = useCartStore((state) => state.removeItem)
+  const applyPromo = useCartStore((state) => state.applyPromo)
+  const clearPromo = useCartStore((state) => state.clearPromo)
   const { count, subtotal } = useCartSummary()
-  const { status, products, sizes, error, retry } = useCatalog()
+  const hydrated = useCartHydrated()
+  const productsQuery = useProducts()
+  const sizesQuery = useSizes()
+  const products = productsQuery.data ?? []
+  const sizes = sizesQuery.data ?? []
   const [draft, setDraft] = useState(promoCode)
   const [message, setMessage] = useState('')
+
+  useEffect(() => {
+    if (hydrated) setDraft(promoCode)
+  }, [hydrated, promoCode])
 
   useEffect(() => {
     document.title = 'Корзина · Каталог'
@@ -58,6 +72,10 @@ export function CartPage() {
     setMessage('')
   }
 
+  if (!hydrated) {
+    return <Status title="Загрузка корзины" />
+  }
+
   if (items.length === 0) {
     return (
       <Status title="Корзина пуста" action={<Link className="primary link-button" to="/">Перейти в каталог</Link>}>
@@ -66,15 +84,26 @@ export function CartPage() {
     )
   }
 
-  if (status === 'loading') {
+  if (productsQuery.isPending || sizesQuery.isPending) {
     return <Status title="Загрузка корзины" />
   }
 
-  if (status === 'error') {
+  if (productsQuery.isError || sizesQuery.isError) {
+    const error = productsQuery.error ?? sizesQuery.error
     return (
       <Status
         title="Не удалось открыть корзину"
-        action={<button type="button" onClick={retry}>Повторить</button>}
+        action={(
+          <button
+            type="button"
+            onClick={() => {
+              productsQuery.refetch()
+              sizesQuery.refetch()
+            }}
+          >
+            Повторить
+          </button>
+        )}
       >
         <p>{error?.message ?? 'Попробуйте ещё раз.'}</p>
       </Status>
@@ -143,19 +172,21 @@ export function CartPage() {
       </ul>
 
       <form className="promo" onSubmit={handlePromo}>
-        <label className="field grow">
-          <span>Промокод</span>
-          <input
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-            placeholder="SALE10 или MINUS50"
-            autoComplete="off"
-          />
-        </label>
-        <button type="submit">Применить</button>
-        {promoCode && (
-          <button type="button" className="text-button" onClick={handleClearPromo}>Убрать</button>
-        )}
+        <div className="promo-row">
+          <label className="field grow">
+            <span>Промокод</span>
+            <input
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="SALE10 или MINUS50"
+              autoComplete="off"
+            />
+          </label>
+          <button type="submit">Применить</button>
+          {promoCode && (
+            <button type="button" className="text-button" onClick={handleClearPromo}>Убрать</button>
+          )}
+        </div>
         {message && <p className="notice" role="status">{message}</p>}
       </form>
 

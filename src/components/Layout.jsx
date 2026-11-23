@@ -1,8 +1,8 @@
 import { NavLink, Outlet } from 'react-router'
-import { useCartSummary } from '../context/CartContext'
+import { useCartSummary } from '../hooks/useCart'
 
 export function Layout() {
-  const { count, costLabel } = useCartSummary()
+  const { count, costLabel, hydrated } = useCartSummary()
 
   return (
     <div className="shell">
@@ -11,10 +11,10 @@ export function Layout() {
         <NavLink
           to="/cart"
           className={({ isActive }) => (isActive ? 'cart-link active' : 'cart-link')}
-          aria-label={`Корзина, ${count} шт. на сумму ${costLabel}`}
+          aria-label={`Корзина, ${hydrated ? `${count} шт.` : '…'} на сумму ${costLabel}`}
         >
           <span>Корзина</span>
-          <strong>{count} шт.</strong>
+          <strong>{hydrated ? `${count} шт.` : '…'}</strong>
           <strong>{costLabel}</strong>
         </NavLink>
       </header>

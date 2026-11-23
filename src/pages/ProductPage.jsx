@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router'
-import { getCategories, getProduct, getSizes } from '../services/api'
 import { Gallery } from '../components/Gallery'
 import { BackLink, Status } from '../components/Status'
-import { useCart } from '../context/CartContext'
+import { useCartStore } from '../store/useCartStore'
+import { useCategories, useProduct, useSizes } from '../queries/catalog'
 import { formatPrice, swatchColor } from '../lib/catalog'
 
 function colorHasSize(color, sizeId) {
@@ -13,35 +13,20 @@ function colorHasSize(color, sizeId) {
 export function ProductPage() {
   const { productId } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
-  const { addItem } = useCart()
-  const [requestId, setRequestId] = useState(0)
-  const [state, setState] = useState({ status: 'loading' })
+  const addItem = useCartStore((state) => state.addItem)
+  const productQuery = useProduct(productId)
+  const sizesQuery = useSizes()
+  const categoriesQuery = useCategories()
   const [notice, setNotice] = useState('')
 
+  const product = productQuery.data
+  const sizes = sizesQuery.data ?? []
+  const category = categoriesQuery.data?.find((item) => String(item.id) === String(product?.categoryId)) ?? null
+  const notFound = productQuery.isError && /not found/i.test(String(productQuery.error?.message ?? ''))
+
   useEffect(() => {
-    let ignore = false
-    setState({ status: 'loading' })
     setNotice('')
-
-    getProduct(productId)
-      .then((product) => Promise.all([product, getSizes(), getCategories()]))
-      .then(([product, sizes, categories]) => {
-        if (ignore) return
-        const category = categories.find((item) => String(item.id) === String(product.categoryId)) ?? null
-        setState({ status: 'ready', product, sizes, category })
-      })
-      .catch((error) => {
-        if (ignore) return
-        const notFound = /not found/i.test(String(error?.message ?? ''))
-        setState(notFound ? { status: 'not-found' } : { status: 'error', error })
-      })
-
-    return () => {
-      ignore = true
-    }
-  }, [productId, requestId])
-
-  const product = state.status === 'ready' ? state.product : null
+  }, [productId])
   const selectedColor = product
     ? product.colors.find((color) => String(color.id) === searchParams.get('color'))
       ?? product.colors.find((color) => color.sizes.length > 0)
@@ -66,11 +51,7 @@ export function ProductPage() {
     document.title = product ? `${product.name} · Каталог` : 'Каталог'
   }, [product])
 
-  if (state.status === 'loading') {
-    return <Status title="Загрузка товара" />
-  }
-
-  if (state.status === 'not-found') {
+  if (notFound) {
     return (
       <Status title="Товар не найден" action={<BackLink />}>
         <p>Такой позиции нет в каталоге.</p>
@@ -78,19 +59,35 @@ export function ProductPage() {
     )
   }
 
-  if (state.status === 'error' || !product || !selectedColor) {
+  if (productQuery.isPending || sizesQuery.isPending || categoriesQuery.isPending) {
+    return <Status title="Загрузка товара" />
+  }
+
+  if (productQuery.isError || sizesQuery.isError || categoriesQuery.isError || !product || !selectedColor) {
+    const error = productQuery.error ?? sizesQuery.error ?? categoriesQuery.error
     return (
       <Status
         title="Не удалось загрузить товар"
-        action={<button type="button" onClick={() => setRequestId((current) => current + 1)}>Повторить</button>}
+        action={(
+          <button
+            type="button"
+            onClick={() => {
+              productQuery.refetch()
+              sizesQuery.refetch()
+              categoriesQuery.refetch()
+            }}
+          >
+            Повторить
+          </button>
+        )}
       >
-        <p>{state.error?.message ?? 'Попробуйте ещё раз.'}</p>
+        <p>{error?.message ?? 'Попробуйте ещё раз.'}</p>
       </Status>
     )
   }
 
   const sizeId = searchParams.get('size')
-  const selectedSize = state.sizes.find((size) => (
+  const selectedSize = sizes.find((size) => (
     String(size.id) === sizeId && colorHasSize(selectedColor, size.id)
   )) ?? null
   const canBuy = Boolean(selectedSize)
@@ -137,7 +134,7 @@ export function ProductPage() {
           alt={`${product.name}, ${selectedColor.name}`}
         />
         <div className="product-info">
-          <p className="muted">{state.category?.name} · {product.brand}</p>
+          <p className="muted">{category?.name} · {product.brand}</p>
           <h1>{product.name}</h1>
           <p className="price price-lg">{formatPrice(selectedColor.price)}</p>
           <p>{selectedColor.description}</p>
@@ -166,7 +163,7 @@ export function ProductPage() {
           <fieldset className="choice">
             <legend>Размер</legend>
             <div className="choice-row">
-              {state.sizes.map((size) => {
+              {sizes.map((size) => {
                 const available = colorHasSize(selectedColor, size.id)
                 const pressed = selectedSize?.id === size.id
                 return (
