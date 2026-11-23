@@ -301,6 +301,12 @@ input, select {
 
 .notice { color: #0f6e56; }
 
+.notice.error { color: #b42318; }
+
+.promo input[aria-invalid='true'] { border-color: #b42318; }
+
+.promo input[aria-invalid='true']:focus-visible { outline-color: #b42318; }
+
 .status { display: grid; gap: 12px; padding: 28px 0; max-width: 460px; }
 
 .cart { display: grid; gap: 8px; }
@@ -334,6 +340,14 @@ input, select {
 .totals div { display: flex; gap: 16px; }
 
 .totals dd { margin: 0; min-width: 80px; text-align: right; }
+
+.totals .discount { color: #0f6e56; font-weight: 700; }
+
+.totals .discount dd {
+  background: #e7f6f1;
+  border-radius: 8px;
+  padding: 2px 8px;
+}
 
 .grand { font-size: 1.25rem; font-weight: 700; }
 

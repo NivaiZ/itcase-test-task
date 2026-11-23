@@ -41,6 +41,7 @@ export function CartPage() {
   const sizes = sizesQuery.data ?? []
   const [draft, setDraft] = useState(promoCode)
   const [message, setMessage] = useState('')
+  const [messageTone, setMessageTone] = useState<'ok' | 'error' | ''>('')
 
   useEffect(() => {
     if (hydrated) setDraft(promoCode)
@@ -52,21 +53,25 @@ export function CartPage() {
     event.preventDefault()
     if (!draft.trim()) {
       setMessage('Введите промокод')
+      setMessageTone('error')
       return
     }
     const promo = applyPromo(draft)
     if (!promo) {
       setMessage('Такой промокод не действует')
+      setMessageTone('error')
       return
     }
     setDraft(promo.code)
     setMessage(`${promo.title} применена`)
+    setMessageTone('ok')
   }
 
   function handleClearPromo() {
     clearPromo()
     setDraft('')
     setMessage('')
+    setMessageTone('')
   }
 
   if (!hydrated) {
@@ -174,9 +179,16 @@ export function CartPage() {
             <span>Промокод</span>
             <input
               value={draft}
-              onChange={(event) => setDraft(event.target.value)}
+              onChange={(event) => {
+                setDraft(event.target.value)
+                if (messageTone === 'error') {
+                  setMessage('')
+                  setMessageTone('')
+                }
+              }}
               placeholder="SALE10 или MINUS50"
               autoComplete="off"
+              aria-invalid={messageTone === 'error' || undefined}
             />
           </label>
           <button type="submit">Применить</button>
@@ -184,7 +196,11 @@ export function CartPage() {
             <button type="button" className="text-button" onClick={handleClearPromo}>Убрать</button>
           )}
         </div>
-        {message && <p className="notice" role="status">{message}</p>}
+        {message && (
+          <p className={messageTone === 'error' ? 'notice error' : 'notice'} role={messageTone === 'error' ? 'alert' : 'status'}>
+            {message}
+          </p>
+        )}
       </form>
 
       <dl className="totals">
@@ -193,7 +209,7 @@ export function CartPage() {
           <dd>{formatPrice(subtotal)}</dd>
         </div>
         {quote.promo && (
-          <div>
+          <div className="discount">
             <dt>{quote.promo.title}</dt>
             <dd>−{formatPrice(quote.discount)}</dd>
           </div>
