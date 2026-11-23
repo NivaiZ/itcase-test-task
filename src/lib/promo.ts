@@ -1,20 +1,22 @@
-const PROMOS = {
+import type { Promo } from '../types/catalog'
+
+const PROMOS: Record<string, Omit<Promo, 'code'>> = {
   SALE10: { type: 'percent', amount: 10, title: 'Скидка 10%' },
   MINUS50: { type: 'fixed', amount: 50, title: 'Скидка 50' },
 }
 
-function roundMoney(value) {
+function roundMoney(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100
 }
 
-export function resolvePromo(code) {
+export function resolvePromo(code: unknown): Promo | null {
   const key = String(code ?? '').trim().toUpperCase()
   const promo = PROMOS[key]
   if (!promo) return null
   return { code: key, ...promo }
 }
 
-export function quoteCart(subtotal, code) {
+export function quoteCart(subtotal: number, code: string) {
   const safeSubtotal = roundMoney(Math.max(0, Number(subtotal) || 0))
   const promo = code ? resolvePromo(code) : null
 

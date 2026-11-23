@@ -8,6 +8,7 @@ build
 # misc
 .DS_Store
 *.local
+*.tsbuildinfo
 
 # logs
 npm-debug.log*

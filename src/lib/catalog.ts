@@ -1,4 +1,6 @@
-export const COLOR_SWATCH = {
+import type { Product } from '../types/catalog'
+
+export const COLOR_SWATCH: Record<string, string> = {
   черный: '#161616',
   белый: '#f7f7f7',
   серый: '#b5b5b5',
@@ -9,13 +11,13 @@ export const COLOR_SWATCH = {
   графит: '#3e434c',
 }
 
-export function formatPrice(value) {
+export function formatPrice(value: number | string) {
   const number = Number(value)
   if (!Number.isFinite(number)) return '—'
   return `${number.toFixed(2)} ₽`
 }
 
-export function minPrice(product) {
+export function minPrice(product: Product) {
   const prices = product.colors
     .map((color) => Number(color.price))
     .filter(Number.isFinite)
@@ -24,12 +26,12 @@ export function minPrice(product) {
   return Math.min(...prices)
 }
 
-export function isInStock(product) {
+export function isInStock(product: Product) {
   return product.colors.some(
     (color) => Array.isArray(color.sizes) && color.sizes.length > 0,
   )
 }
 
-export function swatchColor(name) {
+export function swatchColor(name: string) {
   return COLOR_SWATCH[name] ?? '#d5d5d5'
 }

@@ -1,9 +1,14 @@
 import { useState } from 'react'
 
-export function Gallery({ images, alt }) {
+type GalleryProps = {
+  images: string[]
+  alt: string
+}
+
+export function Gallery({ images, alt }: GalleryProps) {
   const [index, setIndex] = useState(0)
 
-  if (!images?.length) {
+  if (!images.length) {
     return <div className="gallery-empty">Нет изображения</div>
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { BackLink, Status } from '../components/Status'
 import { useCartHydrated, useCartSummary } from '../hooks/useCart'
@@ -6,8 +6,9 @@ import { useProducts, useSizes } from '../queries/catalog'
 import { useCartStore } from '../store/useCartStore'
 import { formatPrice } from '../lib/catalog'
 import { quoteCart } from '../lib/promo'
+import type { CartLine, Product, Size } from '../types/catalog'
 
-function resolveLine(item, products, sizes) {
+function resolveLine(item: CartLine, products: Product[], sizes: Size[]) {
   const product = products.find((entry) => String(entry.id) === String(item.productId))
   const color = product?.colors.find((entry) => String(entry.id) === String(item.colorId))
   const size = sizes.find((entry) => String(entry.id) === String(item.sizeId))
@@ -51,7 +52,7 @@ export function CartPage() {
 
   const quote = quoteCart(subtotal, promoCode)
 
-  function handlePromo(event) {
+  function handlePromo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!draft.trim()) {
       setMessage('Введите промокод')

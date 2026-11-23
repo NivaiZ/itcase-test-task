@@ -1,25 +1,40 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import type { PersistStorage, StorageValue } from 'zustand/middleware'
 import { sameLine, sanitizeItems } from '../lib/cart'
 import { resolvePromo } from '../lib/promo'
+import type { CartLine, Promo } from '../types/catalog'
 
 const STORAGE_KEY = 'itcase-cart'
 
-const cartStorage = {
+type PersistedCart = {
+  items: CartLine[]
+  promoCode: string
+}
+
+type CartState = PersistedCart & {
+  addItem: (item: Omit<CartLine, 'quantity'>) => void
+  setQuantity: (item: Pick<CartLine, 'productId' | 'colorId' | 'sizeId'>, quantity: number) => void
+  removeItem: (item: Pick<CartLine, 'productId' | 'colorId' | 'sizeId'>) => void
+  applyPromo: (code: string) => Promo | null
+  clearPromo: () => void
+}
+
+const cartStorage: PersistStorage<PersistedCart> = {
   getItem(name) {
     try {
       const raw = localStorage.getItem(name)
       if (!raw) return null
 
-      const parsed = JSON.parse(raw)
-      const payload = parsed?.state ?? parsed
+      const parsed = JSON.parse(raw) as StorageValue<PersistedCart> | PersistedCart
+      const payload = 'state' in parsed ? parsed.state : parsed
 
       return {
         state: {
           items: payload?.items ?? [],
           promoCode: payload?.promoCode ?? '',
         },
-        version: parsed?.version ?? 0,
+        version: 'version' in parsed ? parsed.version ?? 0 : 0,
       }
     } catch {
       return null
@@ -33,7 +48,7 @@ const cartStorage = {
   },
 }
 
-export const useCartStore = create(
+export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
@@ -87,10 +102,11 @@ export const useCartStore = create(
         promoCode: state.promoCode,
       }),
       merge(persisted, current) {
+        const stored = persisted as Partial<PersistedCart> | undefined
         return {
           ...current,
-          items: sanitizeItems(persisted?.items),
-          promoCode: resolvePromo(persisted?.promoCode)?.code ?? '',
+          items: sanitizeItems(stored?.items),
+          promoCode: resolvePromo(stored?.promoCode)?.code ?? '',
         }
       },
     },

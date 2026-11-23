@@ -22,9 +22,10 @@ export function useCategories() {
   })
 }
 
-export function useProduct(id) {
+export function useProduct(id: string | undefined) {
   return useQuery({
-    queryKey: ['product', String(id)],
-    queryFn: () => getProduct(id),
+    queryKey: ['product', id],
+    queryFn: () => getProduct(id ?? ''),
+    enabled: Boolean(id),
   })
 }

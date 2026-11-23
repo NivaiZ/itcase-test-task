@@ -5,8 +5,9 @@ import { BackLink, Status } from '../components/Status'
 import { useCartStore } from '../store/useCartStore'
 import { useCategories, useProduct, useSizes } from '../queries/catalog'
 import { formatPrice, swatchColor } from '../lib/catalog'
+import type { ProductColor, Size } from '../types/catalog'
 
-function colorHasSize(color, sizeId) {
+function colorHasSize(color: ProductColor, sizeId: string | number) {
   return color.sizes.some((id) => String(id) === String(sizeId))
 }
 
@@ -86,14 +87,16 @@ export function ProductPage() {
     )
   }
 
+  const activeProduct = product
+  const activeColor = selectedColor
   const sizeId = searchParams.get('size')
   const selectedSize = sizes.find((size) => (
-    String(size.id) === sizeId && colorHasSize(selectedColor, size.id)
+    String(size.id) === sizeId && colorHasSize(activeColor, size.id)
   )) ?? null
   const canBuy = Boolean(selectedSize)
-  const soldOut = selectedColor.sizes.length === 0
+  const soldOut = activeColor.sizes.length === 0
 
-  function selectColor(color) {
+  function selectColor(color: ProductColor) {
     setNotice('')
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
@@ -104,11 +107,11 @@ export function ProductPage() {
     }, { replace: true })
   }
 
-  function selectSize(size) {
+  function selectSize(size: Size) {
     setNotice('')
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
-      next.set('color', String(selectedColor.id))
+      next.set('color', String(activeColor.id))
       next.set('size', String(size.id))
       return next
     }, { replace: true })
@@ -117,8 +120,8 @@ export function ProductPage() {
   function handleAdd() {
     if (!selectedSize) return
     addItem({
-      productId: product.id,
-      colorId: selectedColor.id,
+      productId: activeProduct.id,
+      colorId: activeColor.id,
       sizeId: selectedSize.id,
     })
     setNotice('Добавлено в корзину')
@@ -129,21 +132,21 @@ export function ProductPage() {
       <BackLink />
       <div className="product-layout">
         <Gallery
-          key={selectedColor.id}
-          images={selectedColor.images}
-          alt={`${product.name}, ${selectedColor.name}`}
+          key={activeColor.id}
+          images={activeColor.images}
+          alt={`${activeProduct.name}, ${activeColor.name}`}
         />
         <div className="product-info">
-          <p className="muted">{category?.name} · {product.brand}</p>
-          <h1>{product.name}</h1>
-          <p className="price price-lg">{formatPrice(selectedColor.price)}</p>
-          <p>{selectedColor.description}</p>
+          <p className="muted">{category?.name} · {activeProduct.brand}</p>
+          <h1>{activeProduct.name}</h1>
+          <p className="price price-lg">{formatPrice(activeColor.price)}</p>
+          <p>{activeColor.description}</p>
 
           <fieldset className="choice">
             <legend>Цвет</legend>
             <div className="choice-row">
-              {product.colors.map((color) => {
-                const pressed = color.id === selectedColor.id
+              {activeProduct.colors.map((color) => {
+                const pressed = color.id === activeColor.id
                 return (
                   <button
                     key={color.id}

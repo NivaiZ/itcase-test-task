@@ -1,7 +1,12 @@
 import { Link } from 'react-router'
 import { formatPrice, isInStock, minPrice } from '../lib/catalog'
+import type { Product } from '../types/catalog'
 
-export function ProductCard({ product }) {
+type ProductCardProps = {
+  product: Product
+}
+
+export function ProductCard({ product }: ProductCardProps) {
   const price = minPrice(product)
   const pricesDiffer = product.colors.some((color) => Number(color.price) !== price)
   const image = product.colors[0]?.images[0]

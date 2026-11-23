@@ -1,6 +1,6 @@
 # Каталог товаров
 
-Стек: Vite, React 19 (`createRoot` + `StrictMode`), React Router 8, TanStack Query для данных каталога, Zustand для корзины. Create React App не используется.
+Стек: Vite, React 19 (`createRoot` + `StrictMode`), TypeScript, React Router 8, TanStack Query для данных каталога, Zustand для корзины. Create React App не используется.
 
 ```bash
 npm install
