@@ -14,10 +14,6 @@ export function ProductListPage() {
   const skipDim = useRef(true)
 
   useEffect(() => {
-    document.title = 'Каталог'
-  }, [])
-
-  useEffect(() => {
     if (skipDim.current) {
       skipDim.current = false
       return
@@ -85,11 +81,23 @@ export function ProductListPage() {
         </div>
         <label className="field">
           <span>Сортировка</span>
-          <select value={sort} onChange={(event) => setSort(event.target.value)}>
-            <option value="">По умолчанию</option>
-            <option value="asc">Сначала дешевле</option>
-            <option value="desc">Сначала дороже</option>
-          </select>
+          <span className="select">
+            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+              <option value="">По умолчанию</option>
+              <option value="asc">Сначала дешевле</option>
+              <option value="desc">Сначала дороже</option>
+            </select>
+            <svg className="select-chevron" viewBox="0 0 20 20" aria-hidden="true">
+              <path
+                d="M5 7.5 L10 12.5 L15 7.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
         </label>
       </form>
 

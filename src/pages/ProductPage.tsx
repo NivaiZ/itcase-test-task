@@ -48,10 +48,6 @@ export function ProductPage() {
     setSearchParams(next, { replace: true })
   }, [product, selectedColor, searchParams, setSearchParams])
 
-  useEffect(() => {
-    document.title = product ? `${product.name} · Каталог` : 'Каталог'
-  }, [product])
-
   if (notFound) {
     return (
       <Status title="Товар не найден" action={<BackLink />}>

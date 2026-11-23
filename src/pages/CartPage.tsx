@@ -46,10 +46,6 @@ export function CartPage() {
     if (hydrated) setDraft(promoCode)
   }, [hydrated, promoCode])
 
-  useEffect(() => {
-    document.title = 'Корзина · Каталог'
-  }, [])
-
   const quote = quoteCart(subtotal, promoCode)
 
   function handlePromo(event: FormEvent<HTMLFormElement>) {

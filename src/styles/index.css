@@ -60,6 +60,7 @@ a { color: inherit; }
 }
 
 .cart-link {
+  margin-left: auto;
   display: flex;
   gap: 10px;
   align-items: center;
@@ -98,6 +99,29 @@ a { color: inherit; }
 .controls .field:not(.grow) { flex: 0 0 auto; }
 
 .controls select { width: auto; min-width: 190px; }
+
+.select { position: relative; display: block; }
+
+.select select {
+  appearance: none;
+  padding-right: 42px;
+}
+
+.select-chevron {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  color: #5e6573;
+  transform: translateY(-50%);
+  transition: transform 0.2s ease;
+  pointer-events: none;
+}
+
+.select:has(select:open) .select-chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
 
 .field {
   display: grid;
@@ -203,17 +227,24 @@ input, select {
 
 .gallery-nav {
   position: absolute;
-  inset: auto 10px 10px;
+  inset: 0;
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  padding: 0 14px;
+  pointer-events: none;
 }
 
 .gallery-nav button {
-  width: 40px;
-  height: 40px;
+  pointer-events: auto;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
   border-radius: 50%;
-  font-size: 1.4rem;
-  line-height: 1;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(20, 24, 33, 0.16);
 }
 
 .thumbs, .choice-row, .qty { display: flex; flex-wrap: wrap; gap: 8px; }
