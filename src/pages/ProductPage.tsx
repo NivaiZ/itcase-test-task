@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 import { Gallery } from '../components/Gallery'
 import { BackLink, Status } from '../components/Status'
 import { ProductSkeleton } from '../components/Skeleton'
+import { toast } from '../components/Toaster'
 import { useCartStore } from '../store/useCartStore'
 import { useCategories, useProduct, useSizes } from '../queries/catalog'
 import { formatPrice, swatchColor } from '../lib/catalog'
@@ -21,16 +22,12 @@ export function ProductPage() {
   const productQuery = useProduct(productId)
   const sizesQuery = useSizes()
   const categoriesQuery = useCategories()
-  const [notice, setNotice] = useState('')
 
   const product = productQuery.data
   const sizes = sizesQuery.data ?? []
   const category = categoriesQuery.data?.find((item) => String(item.id) === String(product?.categoryId)) ?? null
   const notFound = productQuery.isError && /not found/i.test(String(productQuery.error?.message ?? ''))
 
-  useEffect(() => {
-    setNotice('')
-  }, [productId])
   const selectedColor = product
     ? product.colors.find((color) => String(color.id) === searchParams.get('color'))
       ?? product.colors.find((color) => color.sizes.length > 0)
@@ -96,7 +93,6 @@ export function ProductPage() {
   const soldOut = activeColor.sizes.length === 0
 
   function selectColor(color: ProductColor) {
-    setNotice('')
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
       next.set('color', String(color.id))
@@ -107,7 +103,6 @@ export function ProductPage() {
   }
 
   function selectSize(size: Size) {
-    setNotice('')
     setSearchParams((current) => {
       const next = new URLSearchParams(current)
       next.set('color', String(activeColor.id))
@@ -123,7 +118,7 @@ export function ProductPage() {
       colorId: activeColor.id,
       sizeId: selectedSize.id,
     })
-    setNotice('Добавлено в корзину')
+    toast.success('Добавлено в корзину')
   }
 
   return (
@@ -189,7 +184,6 @@ export function ProductPage() {
             {soldOut ? 'Нет в наличии' : 'Добавить в корзину'}
           </button>
           {!soldOut && !selectedSize && <p className={ui.muted}>Выберите размер</p>}
-          {notice && <p className={ui.notice} role="status">{notice}</p>}
         </div>
       </div>
     </article>

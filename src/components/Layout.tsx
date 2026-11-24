@@ -3,6 +3,7 @@ import { NavLink, Outlet, useMatches } from 'react-router'
 import { useCartSummary } from '../hooks/useCart'
 import { useProduct } from '../queries/catalog'
 import type { AppHandle } from '../types/route'
+import { Toaster } from './Toaster'
 import styles from './Layout.module.css'
 
 function useRouteLabel() {
@@ -44,6 +45,7 @@ export function Layout() {
       <main>
         <Outlet />
       </main>
+      <Toaster />
     </div>
   )
 }

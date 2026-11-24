@@ -8,6 +8,7 @@ import { useCartStore } from '../store/useCartStore'
 import { formatPrice } from '../lib/catalog'
 import { quoteCart } from '../lib/promo'
 import type { CartLine, Product, Size } from '../types/catalog'
+import { toast } from '../components/Toaster'
 import ui from '../styles/ui.module.css'
 import styles from './CartPage.module.css'
 
@@ -43,8 +44,7 @@ export function CartPage() {
   const products = productsQuery.data ?? []
   const sizes = sizesQuery.data ?? []
   const [draft, setDraft] = useState(promoCode)
-  const [message, setMessage] = useState('')
-  const [messageTone, setMessageTone] = useState<'ok' | 'error' | ''>('')
+  const [invalid, setInvalid] = useState(false)
 
   useEffect(() => {
     if (hydrated) setDraft(promoCode)
@@ -55,26 +55,25 @@ export function CartPage() {
   function handlePromo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!draft.trim()) {
-      setMessage('Введите промокод')
-      setMessageTone('error')
+      setInvalid(true)
+      toast.error('Введите промокод')
       return
     }
     const promo = applyPromo(draft)
     if (!promo) {
-      setMessage('Такой промокод не действует')
-      setMessageTone('error')
+      setInvalid(true)
+      toast.error('Такой промокод не действует')
       return
     }
     setDraft(promo.code)
-    setMessage(`${promo.title} применена`)
-    setMessageTone('ok')
+    setInvalid(false)
+    toast.success(`${promo.title} применена`)
   }
 
   function handleClearPromo() {
     clearPromo()
     setDraft('')
-    setMessage('')
-    setMessageTone('')
+    setInvalid(false)
   }
 
   if (!hydrated) {
@@ -184,14 +183,11 @@ export function CartPage() {
               value={draft}
               onChange={(event) => {
                 setDraft(event.target.value)
-                if (messageTone === 'error') {
-                  setMessage('')
-                  setMessageTone('')
-                }
+                if (invalid) setInvalid(false)
               }}
               placeholder="SALE10 или MINUS50"
               autoComplete="off"
-              aria-invalid={messageTone === 'error' || undefined}
+              aria-invalid={invalid || undefined}
             />
           </label>
           <button type="submit">Применить</button>
@@ -199,11 +195,6 @@ export function CartPage() {
             <button type="button" className={ui.textButton} onClick={handleClearPromo}>Убрать</button>
           )}
         </div>
-        {message && (
-          <p className={messageTone === 'error' ? ui.noticeError : ui.notice} role={messageTone === 'error' ? 'alert' : 'status'}>
-            {message}
-          </p>
-        )}
       </form>
 
       <dl className={styles.totals}>
