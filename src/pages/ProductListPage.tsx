@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useProducts } from '../queries/catalog'
 import { ProductCard } from '../components/ProductCard'
 import { Status } from '../components/Status'
@@ -9,11 +10,19 @@ import styles from './ProductList.module.css'
 export function ProductListPage() {
   const productsQuery = useProducts()
   const products = productsQuery.data ?? []
-  const [query, setQuery] = useState('')
-  const [inStockOnly, setInStockOnly] = useState(false)
-  const [sort, setSort] = useState('')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const query = searchParams.get('q') ?? ''
+  const inStockOnly = searchParams.get('stock') === '1'
+  const sortParam = searchParams.get('sort')
+  const sort = sortParam === 'asc' || sortParam === 'desc' ? sortParam : ''
   const [dimmed, setDimmed] = useState(false)
   const skipDim = useRef(true)
+
+  function writeParams(change: (next: URLSearchParams) => void, replace: boolean) {
+    const next = new URLSearchParams(searchParams)
+    change(next)
+    setSearchParams(next, { replace })
+  }
 
   useEffect(() => {
     if (skipDim.current) {
@@ -67,7 +76,13 @@ export function ProductListPage() {
             type="search"
             value={query}
             placeholder="Название товара"
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value
+              writeParams((next) => {
+                if (value) next.set('q', value)
+                else next.delete('q')
+              }, searchParams.has('q'))
+            }}
           />
         </label>
         <div className={styles.field}>
@@ -76,7 +91,13 @@ export function ProductListPage() {
             <input
               type="checkbox"
               checked={inStockOnly}
-              onChange={(event) => setInStockOnly(event.target.checked)}
+              onChange={(event) => {
+                const checked = event.target.checked
+                writeParams((next) => {
+                  if (checked) next.set('stock', '1')
+                  else next.delete('stock')
+                }, false)
+              }}
             />
             В наличии
           </label>
@@ -84,7 +105,16 @@ export function ProductListPage() {
         <label className={styles.field}>
           <span>Сортировка</span>
           <span className={styles.select}>
-            <select value={sort} onChange={(event) => setSort(event.target.value)}>
+            <select
+              value={sort}
+              onChange={(event) => {
+                const value = event.target.value
+                writeParams((next) => {
+                  if (value === 'asc' || value === 'desc') next.set('sort', value)
+                  else next.delete('sort')
+                }, false)
+              }}
+            >
               <option value="">По умолчанию</option>
               <option value="asc">Сначала дешевле</option>
               <option value="desc">Сначала дороже</option>

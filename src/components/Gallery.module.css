@@ -2,15 +2,20 @@
 
 .stage {
   position: relative;
+  height: 0;
+  margin: 0;
+  padding-top: 100%;
   border-radius: 16px;
   overflow: hidden;
   background: #fafafa;
 }
 
 .stage img {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: contain;
 }
 

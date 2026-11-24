@@ -33,7 +33,7 @@ export function Gallery({ images, alt }: GalleryProps) {
 
   return (
     <div className={styles.gallery}>
-      <div className={styles.stage}>
+      <figure className={styles.stage}>
         <img src={current} alt={`${alt}, фото ${currentIndex + 1} из ${images.length}`} />
         {images.length > 1 && (
           <div className={styles.nav}>
@@ -53,7 +53,7 @@ export function Gallery({ images, alt }: GalleryProps) {
             </button>
           </div>
         )}
-      </div>
+      </figure>
       {images.length > 1 && (
         <div className={styles.thumbs}>
           {images.map((src, imageIndex) => (
