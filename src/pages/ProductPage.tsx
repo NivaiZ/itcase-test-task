@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router'
 import { Gallery } from '../components/Gallery'
 import { BackLink, Status } from '../components/Status'
+import { ProductSkeleton } from '../components/Skeleton'
 import { useCartStore } from '../store/useCartStore'
 import { useCategories, useProduct, useSizes } from '../queries/catalog'
 import { formatPrice, swatchColor } from '../lib/catalog'
 import type { ProductColor, Size } from '../types/catalog'
+import ui from '../styles/ui.module.css'
+import styles from './ProductPage.module.css'
 
 function colorHasSize(color: ProductColor, sizeId: string | number) {
   return color.sizes.some((id) => String(id) === String(sizeId))
@@ -57,7 +60,7 @@ export function ProductPage() {
   }
 
   if (productQuery.isPending || sizesQuery.isPending || categoriesQuery.isPending) {
-    return <Status title="Загрузка товара" />
+    return <ProductSkeleton />
   }
 
   if (productQuery.isError || sizesQuery.isError || categoriesQuery.isError || !product || !selectedColor) {
@@ -124,34 +127,34 @@ export function ProductPage() {
   }
 
   return (
-    <article className="product">
+    <article className={styles.product}>
       <BackLink />
-      <div className="product-layout">
+      <div className={styles.layout}>
         <Gallery
           key={activeColor.id}
           images={activeColor.images}
           alt={`${activeProduct.name}, ${activeColor.name}`}
         />
-        <div className="product-info">
-          <p className="muted">{category?.name} · {activeProduct.brand}</p>
+        <div className={styles.info}>
+          <p className={ui.muted}>{category?.name} · {activeProduct.brand}</p>
           <h1>{activeProduct.name}</h1>
-          <p className="price price-lg">{formatPrice(activeColor.price)}</p>
+          <p className={`${ui.price} ${ui.priceLg}`}>{formatPrice(activeColor.price)}</p>
           <p>{activeColor.description}</p>
 
-          <fieldset className="choice">
+          <fieldset className={styles.choice}>
             <legend>Цвет</legend>
-            <div className="choice-row">
+            <div className={styles.row}>
               {activeProduct.colors.map((color) => {
                 const pressed = color.id === activeColor.id
                 return (
                   <button
                     key={color.id}
                     type="button"
-                    className={pressed ? 'color-button selected' : 'color-button'}
+                    className={pressed ? `${styles.color} ${styles.selected}` : styles.color}
                     aria-pressed={pressed}
                     onClick={() => selectColor(color)}
                   >
-                    <span className="swatch" style={{ background: swatchColor(color.name) }} />
+                    <span className={styles.swatch} style={{ background: swatchColor(color.name) }} />
                     {color.name}
                   </button>
                 )
@@ -159,9 +162,9 @@ export function ProductPage() {
             </div>
           </fieldset>
 
-          <fieldset className="choice">
+          <fieldset className={styles.choice}>
             <legend>Размер</legend>
-            <div className="choice-row">
+            <div className={styles.row}>
               {sizes.map((size) => {
                 const available = colorHasSize(selectedColor, size.id)
                 const pressed = selectedSize?.id === size.id
@@ -169,7 +172,7 @@ export function ProductPage() {
                   <button
                     key={size.id}
                     type="button"
-                    className={pressed ? 'size-button selected' : 'size-button'}
+                    className={pressed ? `${styles.size} ${styles.selected}` : styles.size}
                     disabled={!available}
                     aria-pressed={pressed}
                     onClick={() => selectSize(size)}
@@ -182,11 +185,11 @@ export function ProductPage() {
             </div>
           </fieldset>
 
-          <button type="button" className="primary" disabled={!canBuy} onClick={handleAdd}>
+          <button type="button" className={ui.primary} disabled={!canBuy} onClick={handleAdd}>
             {soldOut ? 'Нет в наличии' : 'Добавить в корзину'}
           </button>
-          {!soldOut && !selectedSize && <p className="muted">Выберите размер</p>}
-          {notice && <p className="notice" role="status">{notice}</p>}
+          {!soldOut && !selectedSize && <p className={ui.muted}>Выберите размер</p>}
+          {notice && <p className={ui.notice} role="status">{notice}</p>}
         </div>
       </div>
     </article>

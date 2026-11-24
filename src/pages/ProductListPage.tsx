@@ -2,7 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useProducts } from '../queries/catalog'
 import { ProductCard } from '../components/ProductCard'
 import { Status } from '../components/Status'
+import { CatalogSkeleton } from '../components/Skeleton'
 import { isInStock, minPrice } from '../lib/catalog'
+import styles from './ProductList.module.css'
 
 export function ProductListPage() {
   const productsQuery = useProducts()
@@ -41,7 +43,7 @@ export function ProductListPage() {
   }, [products, query, inStockOnly, sort])
 
   if (productsQuery.isPending) {
-    return <Status title="Загрузка каталога" />
+    return <CatalogSkeleton />
   }
 
   if (productsQuery.isError) {
@@ -58,8 +60,8 @@ export function ProductListPage() {
   return (
     <>
       <h1>Каталог</h1>
-      <form className="controls" role="search" onSubmit={(event) => event.preventDefault()}>
-        <label className="field grow">
+      <form className={styles.controls} role="search" onSubmit={(event) => event.preventDefault()}>
+        <label className={`${styles.field} ${styles.grow}`}>
           <span>Поиск</span>
           <input
             type="search"
@@ -68,9 +70,9 @@ export function ProductListPage() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-        <div className="field check-field">
+        <div className={styles.field}>
           <span>Наличие</span>
-          <label className="check">
+          <label className={styles.check}>
             <input
               type="checkbox"
               checked={inStockOnly}
@@ -79,15 +81,15 @@ export function ProductListPage() {
             В наличии
           </label>
         </div>
-        <label className="field">
+        <label className={styles.field}>
           <span>Сортировка</span>
-          <span className="select">
+          <span className={styles.select}>
             <select value={sort} onChange={(event) => setSort(event.target.value)}>
               <option value="">По умолчанию</option>
               <option value="asc">Сначала дешевле</option>
               <option value="desc">Сначала дороже</option>
             </select>
-            <svg className="select-chevron" viewBox="0 0 20 20" aria-hidden="true">
+            <svg className={styles.chevron} viewBox="0 0 20 20" aria-hidden="true">
               <path
                 d="M5 7.5 L10 12.5 L15 7.5"
                 fill="none"
@@ -106,7 +108,7 @@ export function ProductListPage() {
           <p>Попробуйте другой запрос или снимите фильтр.</p>
         </Status>
       ) : (
-        <ul className={dimmed ? 'product-grid is-filtering' : 'product-grid'}>
+        <ul className={dimmed ? `${styles.grid} ${styles.filtering}` : styles.grid}>
           {visible.map((product) => (
             <li key={product.id}>
               <ProductCard product={product} />

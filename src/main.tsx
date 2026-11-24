@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from 'react-router'
 import { router } from './App'
 import { queryClient } from './queries/client'
-import './styles/index.css'
+import './styles/global.css'
 
 const rootElement = document.getElementById('root')
 

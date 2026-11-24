@@ -3,6 +3,7 @@ import { NavLink, Outlet, useMatches } from 'react-router'
 import { useCartSummary } from '../hooks/useCart'
 import { useProduct } from '../queries/catalog'
 import type { AppHandle } from '../types/route'
+import styles from './Layout.module.css'
 
 function useRouteLabel() {
   const matches = useMatches()
@@ -27,12 +28,12 @@ export function Layout() {
   }, [label])
 
   return (
-    <div className="shell">
-      <header className="header">
-        {label !== 'Каталог' && <NavLink to="/" className="brand">{label}</NavLink>}
+    <div className={styles.shell}>
+      <header className={styles.header}>
+        {label !== 'Каталог' && <NavLink to="/" className={styles.brand}>{label}</NavLink>}
         <NavLink
           to="/cart"
-          className={({ isActive }) => (isActive ? 'cart-link active' : 'cart-link')}
+          className={({ isActive }) => (isActive ? `${styles.cartLink} ${styles.active}` : styles.cartLink)}
           aria-label={`Корзина, ${hydrated ? `${count} шт.` : '…'} на сумму ${costLabel}`}
         >
           <span>Корзина</span>

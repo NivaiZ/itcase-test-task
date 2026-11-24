@@ -1,0 +1,48 @@
+.product { display: grid; gap: 16px; }
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.info { display: grid; gap: 8px; }
+
+.choice {
+  border: 0;
+  padding: 0;
+  margin: 8px 0 0;
+  display: grid;
+  gap: 8px;
+}
+
+.choice legend { padding: 0; color: #5e6573; }
+
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.color, .size {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size { flex-direction: column; gap: 0; min-width: 58px; }
+
+.size small { color: #5e6573; }
+
+.selected {
+  border-color: #0f6e56;
+  box-shadow: inset 0 0 0 1px #0f6e56;
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #c8c8c8;
+}
+
+@media (max-width: 800px) {
+  .layout { grid-template-columns: 1fr; }
+}

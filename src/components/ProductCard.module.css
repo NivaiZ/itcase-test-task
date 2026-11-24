@@ -1,0 +1,32 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  background: #fff;
+  border: 1px solid #e4e6eb;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.media { background: #fafafa; }
+
+.media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.body {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  color: #5e6573;
+}

@@ -1,6 +1,8 @@
 import { Link } from 'react-router'
 import { formatPrice, isInStock, minPrice } from '../lib/catalog'
 import type { Product } from '../types/catalog'
+import ui from '../styles/ui.module.css'
+import styles from './ProductCard.module.css'
 
 type ProductCardProps = {
   product: Product
@@ -13,15 +15,15 @@ export function ProductCard({ product }: ProductCardProps) {
   const available = isInStock(product)
 
   return (
-    <Link to={`/product/${product.id}`} className="card">
-      <div className="card-media">
-        {image ? <img src={image} alt="" /> : <span className="gallery-empty">Нет фото</span>}
+    <Link to={`/product/${product.id}`} className={styles.card}>
+      <div className={styles.media}>
+        {image ? <img src={image} alt="" /> : <span className={styles.empty}>Нет фото</span>}
       </div>
-      <div className="card-body">
+      <div className={styles.body}>
         <h2>{product.name}</h2>
-        <p className="muted">{product.brand}</p>
-        <p className="price">{pricesDiffer ? `от ${formatPrice(price)}` : formatPrice(price)}</p>
-        {!available && <p className="badge">Нет в наличии</p>}
+        <p className={ui.muted}>{product.brand}</p>
+        <p className={ui.price}>{pricesDiffer ? `от ${formatPrice(price)}` : formatPrice(price)}</p>
+        {!available && <p className={ui.badge}>Нет в наличии</p>}
       </div>
     </Link>
   )

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import styles from './Status.module.css'
 
 type StatusProps = {
   title: string
@@ -12,7 +13,7 @@ export function Status({ title, level = 'h1', children, action }: StatusProps) {
   const Title = level
 
   return (
-    <div className="status">
+    <div className={styles.status}>
       <Title>{title}</Title>
       {children}
       {action}
@@ -26,5 +27,5 @@ type BackLinkProps = {
 }
 
 export function BackLink({ to = '/', children = 'Назад к списку' }: BackLinkProps) {
-  return <Link className="back-link" to={to}>{children}</Link>
+  return <Link className={styles.backLink} to={to}>{children}</Link>
 }

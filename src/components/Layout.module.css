@@ -1,0 +1,33 @@
+.shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding-bottom: 56px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-decoration: none;
+}
+
+.cartLink {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-decoration: none;
+  border: 1px solid #d5d8de;
+  background: #fff;
+  border-radius: 999px;
+  padding: 10px 14px;
+}
+
+.active { border-color: #0f6e56; }

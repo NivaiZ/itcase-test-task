@@ -1,12 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { BackLink, Status } from '../components/Status'
+import { CartSkeleton } from '../components/Skeleton'
 import { useCartHydrated, useCartSummary } from '../hooks/useCart'
 import { useProducts, useSizes } from '../queries/catalog'
 import { useCartStore } from '../store/useCartStore'
 import { formatPrice } from '../lib/catalog'
 import { quoteCart } from '../lib/promo'
 import type { CartLine, Product, Size } from '../types/catalog'
+import ui from '../styles/ui.module.css'
+import styles from './CartPage.module.css'
 
 function resolveLine(item: CartLine, products: Product[], sizes: Size[]) {
   const product = products.find((entry) => String(entry.id) === String(item.productId))
@@ -75,19 +78,19 @@ export function CartPage() {
   }
 
   if (!hydrated) {
-    return <Status title="Загрузка корзины" />
+    return <CartSkeleton />
   }
 
   if (items.length === 0) {
     return (
-      <Status title="Корзина пуста" action={<Link className="primary link-button" to="/">Перейти в каталог</Link>}>
+      <Status title="Корзина пуста" action={<Link className={`${ui.primary} ${ui.linkButton}`} to="/">Перейти в каталог</Link>}>
         <p>Добавьте товар, и он появится здесь.</p>
       </Status>
     )
   }
 
   if (productsQuery.isPending || sizesQuery.isPending) {
-    return <Status title="Загрузка корзины" />
+    return <CartSkeleton />
   }
 
   if (productsQuery.isError || sizesQuery.isError) {
@@ -113,32 +116,32 @@ export function CartPage() {
   }
 
   return (
-    <section className="cart">
+    <section className={styles.cart}>
       <BackLink />
       <h1>Корзина</h1>
-      <p className="muted">{count} шт.</p>
-      <ul className="cart-list">
+      <p className={ui.muted}>{count} шт.</p>
+      <ul className={styles.list}>
         {items.map((item) => {
           const line = resolveLine(item, products, sizes)
           const key = `${item.productId}-${item.colorId}-${item.sizeId}`
 
           if (!line) {
             return (
-              <li key={key} className="cart-line">
+              <li key={key} className={styles.line}>
                 <div>
                   <h2>Позиция недоступна</h2>
-                  <button type="button" className="text-button" onClick={() => removeItem(item)}>Удалить</button>
+                  <button type="button" className={ui.textButton} onClick={() => removeItem(item)}>Удалить</button>
                 </div>
               </li>
             )
           }
 
           return (
-            <li key={key} className="cart-line">
-              <Link to={`/product/${line.product.id}?color=${line.color.id}&size=${line.size.id}`} className="cart-media">
+            <li key={key} className={styles.line}>
+              <Link to={`/product/${line.product.id}?color=${line.color.id}&size=${line.size.id}`} className={styles.media}>
                 {line.image ? <img src={line.image} alt="" /> : <span>Нет фото</span>}
               </Link>
-              <div className="cart-copy">
+              <div className={styles.copy}>
                 <h2>
                   <Link to={`/product/${line.product.id}?color=${line.color.id}&size=${line.size.id}`}>
                     {line.product.name}
@@ -148,7 +151,7 @@ export function CartPage() {
                 <p>Размер: {line.size.name} ({line.size.number})</p>
                 <p>Цена: {formatPrice(line.price)}</p>
                 <p>Сумма: {formatPrice(line.sum)}</p>
-                <div className="qty">
+                <div className={styles.qty}>
                   <button
                     type="button"
                     onClick={() => setQuantity(item, item.quantity - 1)}
@@ -165,7 +168,7 @@ export function CartPage() {
                   >
                     +
                   </button>
-                  <button type="button" className="text-button" onClick={() => removeItem(item)}>Удалить</button>
+                  <button type="button" className={ui.textButton} onClick={() => removeItem(item)}>Удалить</button>
                 </div>
               </div>
             </li>
@@ -173,9 +176,9 @@ export function CartPage() {
         })}
       </ul>
 
-      <form className="promo" onSubmit={handlePromo}>
-        <div className="promo-row">
-          <label className="field grow">
+      <form className={styles.promo} onSubmit={handlePromo}>
+        <div className={styles.promoRow}>
+          <label className={`${ui.field} ${ui.grow}`}>
             <span>Промокод</span>
             <input
               value={draft}
@@ -193,28 +196,28 @@ export function CartPage() {
           </label>
           <button type="submit">Применить</button>
           {promoCode && (
-            <button type="button" className="text-button" onClick={handleClearPromo}>Убрать</button>
+            <button type="button" className={ui.textButton} onClick={handleClearPromo}>Убрать</button>
           )}
         </div>
         {message && (
-          <p className={messageTone === 'error' ? 'notice error' : 'notice'} role={messageTone === 'error' ? 'alert' : 'status'}>
+          <p className={messageTone === 'error' ? ui.noticeError : ui.notice} role={messageTone === 'error' ? 'alert' : 'status'}>
             {message}
           </p>
         )}
       </form>
 
-      <dl className="totals">
+      <dl className={styles.totals}>
         <div>
           <dt>Сумма</dt>
           <dd>{formatPrice(subtotal)}</dd>
         </div>
         {quote.promo && (
-          <div className="discount">
+          <div className={styles.discount}>
             <dt>{quote.promo.title}</dt>
             <dd>−{formatPrice(quote.discount)}</dd>
           </div>
         )}
-        <div className="grand">
+        <div className={styles.grand}>
           <dt>Итого</dt>
           <dd>{formatPrice(quote.total)}</dd>
         </div>
